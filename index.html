@@ -409,9 +409,11 @@ body.cop #ovl{opacity:1;pointer-events:auto}body.cop #cartd{transform:none}body.
 #crack{padding-top:0}
 .cg{display:grid;grid-template-columns:1.45fr 1fr;gap:clamp(18px,2.4vw,36px);margin-top:6vh;align-items:stretch}
 @media(max-width:860px){.cg{grid-template-columns:1fr}}
-.cgs{position:relative;border-radius:28px;overflow:hidden;background:linear-gradient(#f1f1f0 0,#e4e4e2 62%,#d9d9d6 100%);aspect-ratio:16/10;touch-action:pan-y;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;cursor:pointer;box-shadow:0 40px 80px -40px rgba(60,28,36,.35)}
+.cgs{position:relative;border-radius:28px;overflow:hidden;background:linear-gradient(#f1f1f0 0,#e4e4e2 62%,#d9d9d6 100%);touch-action:pan-y;min-height:200px;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;cursor:pointer;box-shadow:0 40px 80px -40px rgba(60,28,36,.35)}
 .cgs.sl2{touch-action:none}
-@media(max-width:860px){.cgs{aspect-ratio:5/4}}
+.cgs::before{content:"";display:block;padding-top:62.5%}
+@media(max-width:860px){.cgs::before{padding-top:80%}}
+.cgs{-webkit-transform:translateZ(0)}
 .cgs video,.cgs svg{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
 .cgs video,.cgs .p0{object-fit:cover}.cgs .p0{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}.cgs video{opacity:0;transition:opacity .25s}.cgs video.rdy{opacity:1}.cgs video::-webkit-media-controls,.cgs video::-webkit-media-controls-start-playback-button{display:none!important;-webkit-appearance:none}
 .cgs svg{overflow:visible}
@@ -744,11 +746,12 @@ function crack(){state='open';st.classList.add('open');for(const c of st.childre
 function result(){if(state!='open')return;state='done';shown++;const j=F[f],a=WHY[f];
  pn.innerHTML=`<span class="pill in2">Recommended for you</span><h3 class="in2">${j.n}</h3><p class="in2">${a[Math.floor(Math.random()*a.length)]}</p><div class="chips in2">${j.w.map(w=>`<em>${w}</em>`).join('')}</div><div class="row2 in2"><b>GH₵ ${PR[f]} <small style="font:500 12px var(--sans);opacity:.7">250ml</small></b><button class="add" data-k="${f}">Add to bag</button><button class="again">Crack another</button></div>`}
 pn.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.classList.contains('add')){addItem(f,1);b.textContent='Added ✓';setTimeout(()=>b.textContent='Add to bag',1400)}else if(b.classList.contains('again')){start();st.scrollIntoView({behavior:'smooth',block:'center'})}});
-function down(e){if(state!='play')return;if(m.id=='tap'){go();return}if(m.id=='hold')hold=1;lx=e.clientX;ly=e.clientY;if(m.id=='swipe')hold=1}
+function prime(){const v=st.querySelector('video');if(!v||v.dataset.pr)return;v.dataset.pr=1;try{const r=v.play();if(r&&r.then)r.then(()=>{v.pause();try{v.currentTime=0}catch(e){}}).catch(()=>{});}catch(e){}}
+function down(e){prime();if(state!='play')return;if(m.id=='tap'){go();return}if(m.id=='hold')hold=1;lx=e.clientX;ly=e.clientY;if(m.id=='swipe')hold=1}
 function go(){if(state!='play')return;crack()}
 function mv(e){if(state!='play'||m.id!='swipe'||!hold)return;dist+=Math.hypot(e.clientX-lx,e.clientY-ly);lx=e.clientX;ly=e.clientY;p=Math.min(1,dist/(st.clientWidth*.2));if(p>=1)go()}
 const upf=()=>{if(state=='play'&&m&&m.id=='swipe'&&hold&&dist>22){hold=0;go();return}hold=0};
-st.addEventListener('pointerdown',down);st.addEventListener('pointermove',mv);addEventListener('pointerup',upf);addEventListener('pointercancel',upf);
+st.addEventListener('touchstart',prime,{passive:true});st.addEventListener('pointerdown',down);st.addEventListener('pointermove',mv);addEventListener('pointerup',upf);addEventListener('pointercancel',upf);
 st.addEventListener('keydown',e=>{if(e.key==' '||e.key=='Enter'){e.preventDefault();go()}});
 (function loop(t){const dt=Math.min(.05,(t-last)/1000);last=t;
  if(state=='play'){if(m.id=='hold')p=hold?Math.min(1,p+dt*1.1):Math.max(0,p-dt*1.6);if(m.id=='swipe'&&!hold){dist=Math.max(0,dist-dt*st.clientWidth*.6);p=Math.min(1,dist/(st.clientWidth*.8))}
